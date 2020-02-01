@@ -2,10 +2,7 @@ import React, { Fragment } from 'react'
 import MoreButton from '../components/MoreButton'
 import Sushi from '../components/Sushi'
 
-
-// props of four sushis
-
-const showSushis = props => props.sushis.map(sushi => <Sushi sushi={sushi} onEatSushi={props.onEatSushi}/>)
+const showSushis = props => props.sushis.map(sushi => <Sushi key={sushi.id} sushi={sushi} onEatSushi={props.onEatSushi}/>)
 
 const SushiContainer = (props) => {
   return (
@@ -17,5 +14,4 @@ const SushiContainer = (props) => {
     </Fragment>
   )
 }
-
 export default SushiContainer

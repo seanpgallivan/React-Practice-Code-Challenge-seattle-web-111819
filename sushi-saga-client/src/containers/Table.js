@@ -2,15 +2,9 @@ import React, { Fragment } from 'react'
 
 const Table = (props) => {
 
-  const handleClick = () => {
-    props.onAddFunds()
-  }
+  const handleClick = () => props.onAddFunds()
 
-  const renderPlates = (array) => {
-    return array.map((_x, index) => {
-      return <div className="empty-plate" style={{ top: -7 * index }}/>
-    })
-  }
+  const renderPlates = arr => arr.map((_x, i) => <div key={i} className="empty-plate" style={{ top: -7 * i }}/>)
 
   return (
     <Fragment>
@@ -20,18 +14,10 @@ const Table = (props) => {
       </h1>
       <div className="table">
         <div className="stack">
-          {
-            /* 
-               renderPlates takes an array 
-               and renders an empty plate
-               for every element in the array
-            */
-            renderPlates(props.eatenSushi)
-          }
+          {renderPlates(props.eatenSushi)}
         </div>
       </div>
     </Fragment>
   )
 }
-
 export default Table

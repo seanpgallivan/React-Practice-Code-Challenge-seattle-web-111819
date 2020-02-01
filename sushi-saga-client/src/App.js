@@ -2,54 +2,57 @@ import React, { Component } from 'react';
 import SushiContainer from './containers/SushiContainer';
 import Table from './containers/Table';
 
-// Endpoint!
 const API = "http://localhost:3000/sushis"
 
 export default class App extends Component {
-  constructor() {
-    super()
-    this.state = {
-      sushis: [],
-      wallet: 500,
-      current: 0
-    }
+  state = {
+    sushis: [],
+    eaten: [],
+    wallet: 200
   }
 
   componentDidMount() {
-    fetch(API).then(r=>r.json()).then(sushis => this.setState({sushis: sushis}))
+    fetch(API)
+      .then(r=>r.json())
+      .then(sushis => this.setState({sushis: sushis}))
   }
 
-  getFourSushis = () => this.state.sushis.slice(this.state.current % 100, this.state.current % 100 + 4)
+  getFourSushis = () => this.state.sushis.slice(0,4)
+
+  // Goes through first 4 sushis, move eaten to 'eaten' and rotate uneaten to end of 'sushis'
+  // No need for a 'current' tracker this way
+  onMoreSushi = () => {
+    let four = this.getFourSushis()
+    let newSushis = this.state.sushis.slice(4).concat(four.filter(s => !s.eaten))
+    let newEaten = this.state.eaten.concat(four.filter(s => s.eaten))
+    this.setState({sushis: newSushis, eaten: newEaten})
+  }
 
   onEatSushi = nom => {
-    if (!nom.eaten && this.state.wallet >= nom.price) {
-      this.setState(prev => ({
-        sushis: prev.sushis.map(sushi => sushi.id === nom.id ? {...sushi, eaten: true} : sushi),
-        wallet: prev.wallet - nom.price
-      }))
+    let {sushis, wallet} = this.state
+    if (!nom.eaten && wallet >= nom.price) {
+      this.setState({
+        sushis: sushis.map(sushi => sushi.id === nom.id ? {...sushi, eaten: true} : sushi),
+        wallet: wallet - nom.price
+      })
     }
   }
-
-  onMoreSushi = () => this.setState(prev => ({current: prev.current + 4}))
-
-  // WHY DID I USE REDUCE?!?!?!?
-  // eatenSushi = () => this.state.sushis.reduce((m, sushi) => sushi.eaten ? m.concat(sushi) : m, [])
-  eatenSushi = () => this.state.sushis.filter(sushi => sushi.eaten)
 
   onAddFunds = () => this.setState(prev => ({wallet: prev.wallet + 100}))
 
   render() {
+    let {eaten, wallet} = this.state
     return (
       <div className="app">
-        <SushiContainer sushis={this.getFourSushis()} onEatSushi={this.onEatSushi} onMoreSushi={this.onMoreSushi}/>
-        <Table wallet={this.state.wallet} eatenSushi={this.eatenSushi()} onAddFunds={this.onAddFunds}/>
+        <SushiContainer 
+          sushis={this.getFourSushis()}
+          onEatSushi={this.onEatSushi}
+          onMoreSushi={this.onMoreSushi}/>
+        <Table 
+          wallet={wallet} 
+          eatenSushi={eaten} 
+          onAddFunds={this.onAddFunds}/>
       </div>
     );
   }
 }
-
-
-// Test case for using forEach instead of reduce
-// let newArray = []
-// sushis.forEach(sushi => sushi.eaten ? newArray.push(sushi) : null)
-// return newArray
